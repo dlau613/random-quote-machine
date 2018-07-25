@@ -21,10 +21,12 @@ const Wrapper = styled.div`
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background: ${props => props.theme.colors.primary};
+  background: ${props => props.background || 'blue'};
   overflow:hidden;
-  transition: ${props => props.theme.transitionTime};
-`;
+  transition: 1s;
+  `;
+  // background: ${props => props.theme.colors.primary};
+  // transition: ${props => props.theme.transitionTime};
 
 const Text = styled.p`
   color: ${props => props.theme.colors.secondary};
@@ -50,72 +52,39 @@ const theme = {
   transitionTime: '1s',
 }
 
-class RandomQuoteMachine extends React.Component {
+class RandomQuoteMachine extends Component {
   constructor(props) {
     super(props);
-    
+    let colorIndex = Math.floor(Math.random()*colors.length);
     this.state = {
-      quotes: [],
-      quote: '',
-      author: '',
-      color: '',
+      color: ''
     }
-    this.handleClick = this.handleClick.bind(this);
-    this.getNewQuote = this.getNewQuote.bind(this);
-    this.getNewColor = this.getNewColor.bind(this);
+    this.getUpdatedColor = this.getUpdatedColor.bind(this);
   }
+
   componentDidMount() {
-    return fetch('https://gist.githubusercontent.com/camperbot/5a022b72e96c4c9585c32bf6a75f62d9/raw/e3c6895ce42069f0ee7e991229064f167fe8ccdc/quotes.json')
-   .then((response) => response.json())
-   .then((responseJson) => {
-     let quoteIndex = Math.floor(Math.random()*responseJson.quotes.length);
-     let quote = responseJson.quotes[quoteIndex];
-     let colorIndex = Math.floor(Math.random()*colors.length);
-     this.setState({
-       quotes: responseJson.quotes,
-       quote: quote.quote,
-       author: quote.author,
-       color: colors[colorIndex],
-     })
-   })
-   .catch((error) => {
-     console.error(error);
-   });
-  }
-  handleClick() {
-    this.getNewQuote();
-    this.getNewColor();
-  }
-  getNewColor() {
     let colorIndex = Math.floor(Math.random()*colors.length);
     this.setState({
       color: colors[colorIndex]
-    });
+    })
   }
-  getNewQuote() {
-    let quoteIndex = Math.floor(Math.random()*this.state.quotes.length);
+  getUpdatedColor(newColor) {
+    console.log(newColor);
     this.setState({
-      quote: this.state.quotes[quoteIndex].quote,
-      author: this.state.quotes[quoteIndex].author,
-    });
+      color: newColor
+    })
   }
   render() {
-    if (this.state.quote==='') {
+    if (this.state.color === '') {
       return null;
     }
-    let newPrimaryColor = {...theme.colors,primary: this.state.color};
-    let uri = encodeURIComponent(this.state.quote);
-    let href = "https://twitter.com/intent/tweet?hashtags=quotes&text=" + encodeURIComponent('"') + uri + encodeURIComponent('" - ') + encodeURIComponent(this.state.author)
     return (
-      <ThemeProvider theme={{...theme, colors: newPrimaryColor}}>
-        <Wrapper>
-          <QuoteBox quote={this.state.quote} author={this.state.author} onClick={this.handleClick} href={href}/>
-          <Text>by dlau</Text>
-        </Wrapper>
-      </ThemeProvider>
+      <Wrapper background={this.state.color}>
+        <QuoteBox updateColor={this.getUpdatedColor} color={this.state.color} theme={theme}/>
+      </Wrapper>
     );
   }
-};
+}
 
 class App extends Component {
   render() {
