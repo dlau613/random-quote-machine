@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import styled, {ThemeProvider, injectGlobal} from 'styled-components';
+import { Provider, connect } from 'react-redux'
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 
 import QuoteBox from '../quoteBox';
+import {setQuote, setColor} from '../../actions'
 
 injectGlobal`
   html {
@@ -54,9 +57,6 @@ class RandomQuoteMachine extends React.Component {
         
         this.state = {
             quotes: [],
-            quote: '',
-            author: '',
-            color: '',
         }
         this.handleClick = this.handleClick.bind(this);
         this.getNewQuote = this.getNewQuote.bind(this);
@@ -71,10 +71,9 @@ class RandomQuoteMachine extends React.Component {
             let colorIndex = Math.floor(Math.random()*colors.length);
             this.setState({
                 quotes: responseJson.quotes,
-                quote: quote.quote,
-                author: quote.author,
-                color: colors[colorIndex],
             })
+            this.props.setQuote(quote);
+            this.props.setColor(colors[colorIndex]);
         })
         .catch((error) => {
             console.error(error);
@@ -86,28 +85,23 @@ class RandomQuoteMachine extends React.Component {
     }
     getNewColor() {
         let colorIndex = Math.floor(Math.random()*colors.length);
-        this.setState({
-            color: colors[colorIndex]
-        });
+        this.props.setColor(colors[colorIndex]);
     }
     getNewQuote() {
         let quoteIndex = Math.floor(Math.random()*this.state.quotes.length);
-        this.setState({
-            quote: this.state.quotes[quoteIndex].quote,
-            author: this.state.quotes[quoteIndex].author,
-        });
+        this.props.setQuote(this.state.quotes[quoteIndex]);
     }
     render() {
-        if (this.state.quote==='') {
+        if (this.props.quote.quote==='') {
             return null;
         }
-        let newPrimaryColor = {...theme.colors,primary: this.state.color};
-        let uri = encodeURIComponent(this.state.quote);
-        let href = "https://twitter.com/intent/tweet?hashtags=quotes&text=" + encodeURIComponent('"') + uri + encodeURIComponent('" - ') + encodeURIComponent(this.state.author)
+        let newPrimaryColor = {...theme.colors,primary: this.props.color.color};
+        let uri = encodeURIComponent(this.props.quote.quote);
+        let href = "https://twitter.com/intent/tweet?hashtags=quotes&text=" + encodeURIComponent('"') + uri + encodeURIComponent('" - ') + encodeURIComponent(this.props.quote.author)
         return (
             <ThemeProvider theme={{...theme, colors: newPrimaryColor}}>
             <Wrapper>
-                <QuoteBox quote={this.state.quote} author={this.state.author} onClick={this.handleClick} href={href}/>
+                <QuoteBox quote={this.props.quote.quote} author={this.props.quote.author} onClick={this.handleClick} href={href}/>
                 <Text>by dlau</Text>
             </Wrapper>
             </ThemeProvider>
@@ -115,4 +109,19 @@ class RandomQuoteMachine extends React.Component {
     }
 };
 
-export default RandomQuoteMachine;
+const mapStateToProps = (state) => {
+    return {
+        author: state.author,
+        quote: state.quote,
+        color: state.color
+    }
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setQuote: (quote) => dispatch(setQuote(quote)),
+        setColor: (color) => dispatch(setColor(color))
+    }
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(RandomQuoteMachine);
