@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import {FaTwitter} from 'react-icons/lib/fa';
-
+// import {FaTwitter} from 'react-icons/lib/fa';
+import FaTwitter from 'react-icons/lib/fa/twitter';
+// var FaTwitter = require('react-icons/lib/fa/twitter');
 export const Button = styled.button`
     margin:10px;
     background: ${props => props.theme.colors.primary};

@@ -1,32 +1,19 @@
 import { combineReducers } from 'redux';
-import { QUOTE_SET, COLOR_SET} from '../actions'
-
-const quoteReducer = (state = {quote: '', author: ''}, action) => {
-    switch(action.type) {
-        case QUOTE_SET:
-            return {
-                quote: action.quote.quote,
-                author: action.quote.author
-            };
-        default:
-            return state;
-    }       
-}
-
-const colorReducer = (state = {color: ''}, action) => {
-    switch(action.type) {
-        case COLOR_SET: 
-            return {
-                color: action.color
-            };
-        default:
-            return state;
-    }
-}
+import colorReducer, * as fromColor from './color';
+import quoteReducer, * as fromQuote from './quote';
 
 const rootReducer = combineReducers({
     quote: quoteReducer,
     color: colorReducer
 });
+
+export const getColor = (state) => 
+    fromColor.getColor(state.color);
+
+export const getQuoteText = (state) =>
+    fromQuote.getQuoteText(state.quote);
+
+export const getQuoteAuthor = (state) => 
+    fromQuote.getQuoteAuthor(state.quote);
 
 export default rootReducer;

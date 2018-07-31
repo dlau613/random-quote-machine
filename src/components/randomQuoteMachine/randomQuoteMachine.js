@@ -1,8 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import styled, {ThemeProvider, injectGlobal} from 'styled-components';
-import { Provider, connect } from 'react-redux'
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { connect } from 'react-redux'
+import { applyMiddleware } from 'redux';
 
+import { getColor, getQuoteText, getQuoteAuthor } from '../../reducers';
 import QuoteBox from '../quoteBox';
 import {setQuote, setColor} from '../../actions'
 
@@ -92,16 +93,16 @@ class RandomQuoteMachine extends React.Component {
         this.props.setQuote(this.state.quotes[quoteIndex]);
     }
     render() {
-        if (this.props.quote.quote==='') {
+        if (this.props.quote==='') {
             return null;
         }
-        let newPrimaryColor = {...theme.colors,primary: this.props.color.color};
-        let uri = encodeURIComponent(this.props.quote.quote);
-        let href = "https://twitter.com/intent/tweet?hashtags=quotes&text=" + encodeURIComponent('"') + uri + encodeURIComponent('" - ') + encodeURIComponent(this.props.quote.author)
+        let newPrimaryColor = {...theme.colors,primary: this.props.color};
+        let uri = encodeURIComponent(this.props.quote);
+        let href = "https://twitter.com/intent/tweet?hashtags=quotes&text=" + encodeURIComponent('"') + uri + encodeURIComponent('" - ') + encodeURIComponent(this.props.author)
         return (
             <ThemeProvider theme={{...theme, colors: newPrimaryColor}}>
             <Wrapper>
-                <QuoteBox quote={this.props.quote.quote} author={this.props.quote.author} onClick={this.handleClick} href={href}/>
+                <QuoteBox quote={this.props.quote} author={this.props.author} onClick={this.handleClick} href={href}/>
                 <Text>by dlau</Text>
             </Wrapper>
             </ThemeProvider>
@@ -111,9 +112,9 @@ class RandomQuoteMachine extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        author: state.author,
-        quote: state.quote,
-        color: state.color
+        author: getQuoteAuthor(state),
+        quote: getQuoteText(state),
+        color: getColor(state)
     }
 };
 
